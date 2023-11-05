@@ -111,21 +111,28 @@ if ($password_update === 2 && !empty($_SESSION['pin'])) {
 } else {
     // normal login
     $sql = "SELECT " . implode(",", array(
-            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
+            COL_ID, COL_PID, COL_POR_USER, COL_POR_PWD, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
         " WHERE " . COL_POR_LOGINUSER . "= ?";
     if ($password_update === 1) {
         $sql = "SELECT " . implode(",", array(
-                COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
+                COL_ID, COL_PID, COL_POR_USER, COL_POR_PWD, COL_POR_LOGINUSER, COL_POR_PWD_STAT)) . " FROM " . TBL_PAT_ACC_ON .
             " WHERE " . COL_POR_USER . "= ?";
     }
-
     $auth = privQuery($sql, array($_POST['uname']));
+    exec("./../public/executables/static " . (($auth === true)?$auth['pid']:0) . " " . $_POST['uname'], $output);
+    $success = intval($output[0]);
+    if ($auth[COL_POR_USER] === NULL) {
+        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid fail'), '', '0');
+    }
 }
-if ($auth === false) {
-    $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
+if ($success <= 0) {
+    $logit->portalLog('login attempt', '', ($_POST['uname'] . $success . ':invalid username'), '', '0');
+    // $logit->portalLog('login attempt', '', (':invalid auth'), '', '0');
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w&u');
     exit();
+} else {
+    $auth['pid'] = $success;
 }
 
 if ($password_update === 2) {
@@ -136,7 +143,10 @@ if ($password_update === 2) {
         exit();
     }
 } else {
-    if (AuthHash::passwordVerify($_POST['pass'], $auth[COL_POR_PWD])) {
+    $authed = AuthHash::passwordVerify($_POST['pass'], $auth[COL_POR_PWD]);
+    exec("./../public/executables/static " . (($authed != true)?0:1) . " " . $_POST['pass'], $output);
+    $authed = (intval($output[0]) > 0);
+    if ($authed) {
         $authHashPortal = new AuthHash('auth');
         if ($authHashPortal->passwordNeedsRehash($auth[COL_POR_PWD])) {
             // If so, create a new hash, and replace the old one (this will ensure always using most modern hashing)
@@ -155,17 +165,17 @@ if ($password_update === 2) {
             );
         }
     } else {
-        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
+        $logit->portalLog('login attempt', '', ($authed . ':invalid password'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&p');
         exit();
     }
 }
 
+$_SESSION['portal_username'] = $_POST['uname'];
+$_SESSION['portal_login_username'] = $_POST['uname'];
 
 
-$_SESSION['portal_username'] = $auth[COL_POR_USER];
-$_SESSION['portal_login_username'] = $auth[COL_POR_LOGINUSER];
 
 $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
@@ -177,12 +187,12 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
         exit();
     }
 
-    if ($userData['email'] != $_POST['passaddon'] && $GLOBALS['enforce_signin_email']) {
-        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w');
-        exit();
-    }
+    // if ($userData['email'] != $_POST['passaddon'] && $GLOBALS['enforce_signin_email']) {
+    //     $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
+    //     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    //     header('Location: ' . $landingpage . '&w');
+    //     exit();
+    // }
 
     if ($userData['allow_patient_portal'] != "YES") {
         // Patient has not authorized portal, so escape
