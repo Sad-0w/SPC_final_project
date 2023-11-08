@@ -163,10 +163,10 @@ class BaseService
     protected function buildInsertColumns($passed_in = array(), $options = array())
     {
         $keyset = '';
-        $bind = array();
+        $bind = '';
         $result = array();
         $null_value = array_key_exists('null_value', $options) ? $options['null_value'] : '';
-
+        $counter = 1;
         foreach ($passed_in as $key => $value) {
             // Ensure auto's not passed in.
             if (in_array($key, array_column($this->autoIncrements, 'Field'))) {
@@ -186,8 +186,9 @@ class BaseService
             if ($value === null || $value === false) {
                 $value = $null_value;
             }
-            $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            $bind[] = ($value === null || $value === false) ? $null_value : $value;
+            $keyset .= ($keyset) ? ", '$key'" : "'$key'";
+            $bind .= ($bind) ? ", '$value'" : "'$value'";
+            // ($value === null || $value === false) ? $null_value : $value;
         }
 
         $result['set'] = $keyset;
