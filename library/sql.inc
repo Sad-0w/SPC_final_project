@@ -322,6 +322,20 @@ function sqlInsert($statement, $binds = false)
     return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
 }
 
+function multi_query($statement) {
+    $comment_removed = explode("--", $statement)[0];
+    $new_sql = explode(";", $comment_removed);
+
+    $facilityId = 0;
+    foreach($new_sql as $unit) {
+        if(!empty($unit)) {
+            error_log("THIS IS THE EXPLODE BOMB" . $unit);
+            $facilityId = sqlInsert($unit);
+        }
+    }
+    return $facilityId;
+}
+
 /**
 * Specialized sql query in OpenEMR that only returns
 * the first row of query results as an associative array.

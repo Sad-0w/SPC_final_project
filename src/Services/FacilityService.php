@@ -155,7 +155,10 @@ class FacilityService extends BaseService
 
     public function getFacilityForUser($userId)
     {
-        $record = $this->get(array(
+        // error_log("THIS IS MY DOING!!!" . $userId);
+        // $record2 = $this.get(array("where" => "WHERE USER.id = $userId"));
+        // error_log("THIS IS MY DOING 2!!!" . $record2);
+        $record = $this.get(array(
             "where" => "WHERE USER.id = ?",
             "data" => array($userId),
             "join" => "JOIN users USER ON FAC.id = USER.facility_id",
@@ -219,15 +222,9 @@ class FacilityService extends BaseService
     public function insertFacility($data)
     {
         $query = $this->buildInsertColumns($data);
-        $sql = " INSERT INTO facility SET ";
-        $sql .= $query['set'];
-        $facilityId = sqlInsert(
-            $sql,
-            $query['bind']
-        );
+        $sql = " INSERT INTO facility VALUES ( 'DEFAULT', 'DEFAULT', " . $query['bind'] . " , '', '', '' ); ";
 
-        $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(FacilityCreatedEvent::EVENT_HANDLE, $facilityCreatedEvent, 10);
+        $facilityId = multi_query($sql);
 
         return $facilityId;
     }
