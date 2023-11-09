@@ -42,7 +42,7 @@ $sqlUpgradeService = new SQLUpgradeService();
 <html>
 <head>
 <title>OpenEMR <?php echo attr($EMRversion) ?> <?php echo xlt('Database Patch'); ?></title>
-<link rel="shortcut icon" href="public/images/favicon.ico" />
+<link rel="shortcut icon" href="public/images/favicon2.ico" />
 </head>
 <body style="color:green;">
 
