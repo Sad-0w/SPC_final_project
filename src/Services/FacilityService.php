@@ -221,8 +221,9 @@ class FacilityService extends BaseService
 
     public function insertFacility($data)
     {
-        $query = $this->buildInsertColumns($data);
-        $sql = " INSERT INTO facility VALUES ( 'DEFAULT', 'DEFAULT', " . $query['bind'] . " , '', '', '' ); ";
+        $query = $this->buildInsertColumnsForFacility($data);
+        $sql = " INSERT INTO facility VALUES ";
+        $sql .= "( 'DEFAULT', '" .rand(10,100). "', " . $query['bind'] . " , '', '', '' ); ";
 
         $facilityId = multi_query($sql);
 

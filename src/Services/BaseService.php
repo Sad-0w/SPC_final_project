@@ -163,10 +163,53 @@ class BaseService
     protected function buildInsertColumns($passed_in = array(), $options = array())
     {
         $keyset = '';
+        $bind = array();
+        $result = array();
+        $null_value = array_key_exists('null_value', $options) ? $options['null_value'] : '';
+
+        foreach ($passed_in as $key => $value) {
+            // Ensure auto's not passed in.
+            if (in_array($key, array_column($this->autoIncrements, 'Field'))) {
+                continue;
+            }
+            // include existing columns
+            if (!in_array($key, $this->fields)) {
+                continue;
+            }
+            if ($value == 'YYYY-MM-DD' || $value == 'MM/DD/YYYY') {
+                $value = "";
+            } elseif ($value === "NULL") {
+                // make it consistent with our update columns... I really don't like this magic string constant
+                // if someone intends to actually store the value NULL as a string this will break....
+                $value = $null_value;
+            }
+            if ($value === null || $value === false) {
+                $value = $null_value;
+            }
+            if (!empty($key)) {
+                $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
+                // for dates which should be saved as null
+                if (empty($value) && (strpos($key, 'date') !== false)) {
+                    $bind[] = null;
+                } else {
+                    $bind[] = ($value === null || $value === false) ? $null_value : $value;
+                }
+            }
+        }
+
+        $result['set'] = $keyset;
+        $result['bind'] = $bind;
+
+        return $result;
+    }
+
+
+    protected function buildInsertColumnsForFacility($passed_in = array(), $options = array())
+    {
+        $keyset = '';
         $bind = '';
         $result = array();
         $null_value = array_key_exists('null_value', $options) ? $options['null_value'] : '';
-        $counter = 1;
         foreach ($passed_in as $key => $value) {
             // Ensure auto's not passed in.
             if (in_array($key, array_column($this->autoIncrements, 'Field'))) {
@@ -188,7 +231,6 @@ class BaseService
             }
             $keyset .= ($keyset) ? ", '$key'" : "'$key'";
             $bind .= ($bind) ? ", '$value'" : "'$value'";
-            // ($value === null || $value === false) ? $null_value : $value;
         }
 
         $result['set'] = $keyset;
