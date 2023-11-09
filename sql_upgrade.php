@@ -108,7 +108,7 @@ header('Content-type: text/html; charset=utf-8');
 <head>
     <title>OpenEMR Database Upgrade</title>
     <?php Header::setupHeader(); ?>
-    <link rel="shortcut icon" href="public/images/favicon.ico" />
+    <link rel="shortcut icon" href="public/images/favicon2.ico" />
 <script>
     let currentVersion;
     let processProgress = 0;

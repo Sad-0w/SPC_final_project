@@ -84,7 +84,7 @@ class Header
         // BS4 required tag
         $output .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n";
         // Favicon
-        $output .= "<link rel=\"shortcut icon\" href=\"" . $GLOBALS['images_static_relative'] . "/favicon.ico\" />\n";
+        $output .= "<link rel=\"shortcut icon\" href=\"" . $GLOBALS['images_static_relative'] . "/favicon2.ico\" />\n";
         $output .= self::setupAssets($assets, true, false);
         if ($echoOutput) {
             echo $output;

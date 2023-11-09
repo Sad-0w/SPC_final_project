@@ -325,7 +325,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
             </form>
         <?php } else {
             ?> <!-- Main logon -->
-        <img class="img-responsive center-block login-image" src='<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png' />
+        <img class="img-responsive center-block login-image" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con2.svg' />
         <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
             <fieldset>
                 <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>

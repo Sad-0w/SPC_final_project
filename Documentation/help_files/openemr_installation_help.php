@@ -19,7 +19,7 @@
         <script src="../../public/assets/jquery/dist/jquery.min.js"></script>
         <script src="../../public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <link rel="stylesheet" href="../../public/assets/@fortawesome/fontawesome-free/css/all.min.css">
-        <link rel="shortcut icon" href="../../public/images/favicon.ico" />
+        <link rel="shortcut icon" href="../../public/images/favicon2.ico" />
         <script src="../../public/assets/jquery-ui/jquery-ui.js"></script>
     <title><?php echo ("OpenEMR Installation Help");?></title>
     <style>
